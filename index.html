@@ -37,16 +37,20 @@ html, body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* Subtle center-out radial gradient vignette */
+/* Grid backdrop + center vignette — FORTE reference language */
 .launcher {
   position: fixed;
   inset: 0;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: radial-gradient(ellipse 55% 55% at 50% 50%,
-    rgba(13,148,136,0.03) 0%,
-    transparent 70%);
+  background:
+    radial-gradient(ellipse 60% 60% at 50% 50%,
+      rgba(60,110,160,0.06) 0%,
+      transparent 70%),
+    linear-gradient(rgba(110,150,200,0.045) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(110,150,200,0.045) 1px, transparent 1px);
+  background-size: 100% 100%, 56px 56px, 56px 56px;
 }
 
 .wheel-container {
@@ -61,24 +65,23 @@ html, body {
   overflow: visible;
 }
 
-/* ─── Wedge elements ─── */
+/* ─── Wedge elements — per-wedge neon accents ─── */
 .wedge { cursor: pointer; }
 
 .wedge-bg {
-  fill: var(--surface);
-  stroke: var(--teal-border);
-  stroke-width: 1.4;
-  transition: fill 0.22s ease, stroke-width 0.22s ease;
+  stroke-width: 1.6;
+  fill-opacity: 1;
+  filter: drop-shadow(0 0 5px currentColor);
+  transition: filter 0.25s ease, stroke-width 0.25s ease, fill-opacity 0.25s ease;
 }
 
 .wedge:hover .wedge-bg {
-  fill: var(--teal-dim);
-  stroke: var(--teal-bright);
-  stroke-width: 0.9;
+  stroke-width: 2.2;
+  filter: drop-shadow(0 0 14px currentColor) drop-shadow(0 0 26px currentColor);
 }
 
 .wedge-label {
-  fill: var(--text-dim);
+  fill: #e8f2f8;
   font-family: var(--mono);
   letter-spacing: 3;
   text-anchor: middle;
@@ -87,22 +90,29 @@ html, body {
   transition: fill 0.22s ease;
 }
 
-.wedge:hover .wedge-label { fill: var(--teal-bright); }
+.wedge:hover .wedge-label { fill: #ffffff; }
 
 .wedge-key {
-  fill: var(--text-muted);
   font-family: var(--mono);
   text-anchor: middle;
   dominant-baseline: middle;
   pointer-events: none;
-  transition: fill 0.22s ease;
+  opacity: 0.55;
+  transition: opacity 0.22s ease;
 }
 
-.wedge:hover .wedge-key { fill: rgba(20,184,166,0.5); }
+.wedge:hover .wedge-key { opacity: 1; }
 
 /* ─── Hub rings ─── */
-.hub-bg    { fill: var(--bg); }
-.hub-ring  { fill: none; stroke: var(--teal-border); stroke-width: 0.5; }
+.hub-bg    { fill: #0a0d14; }
+.hub-ring  { fill: none; stroke: rgba(110,160,210,0.35); stroke-width: 1; }
+.hub-dash  {
+  fill: none; stroke: rgba(140,180,220,0.5); stroke-width: 1.2;
+  stroke-dasharray: 2.5 7;
+  animation: hub-rotate 90s linear infinite;
+  transform-origin: 0 0;
+}
+@keyframes hub-rotate { to { transform: rotate(360deg); } }
 .hub-pulse { fill: none; stroke: var(--teal); stroke-width: 0.8; }
 
 @keyframes breathe {
@@ -291,14 +301,14 @@ body.entering .sys-tag {
 <script>
 /* ─── Wheel Configuration ─────────────────────────────────── */
 const WEDGES = [
-  { label:'COMMAND',      angle:  0, key:'1', url:'https://zynthr-todays-brief.vercel.app' },
-  { label:'INSTALLATIONS',angle: 45, key:'2', url:'https://installation-attention-view.vercel.app' },
-  { label:'OPERATIONS',   angle: 90, key:'3', url:'https://baas-maintenance.vercel.app' },
-  { label:'EVIDENCE',     angle:135, key:null, url:'evidence.html' },
-  { label:'INTEGRATIONS', angle:180, key:null, url:'integrations.html' },
-  { label:'GOVERNANCE',   angle:225, key:null, url:'governance.html' },
-  { label:'ANALYTICS',    angle:270, key:null, url:'analytics.html' },
-  { label:'DEPLOYMENT',   angle:315, key:'4', url:'deployment.html' },
+  { label:'COMMAND',      angle:  0, key:'1', url:'https://zynthr-todays-brief.vercel.app',           color:'#5ba8ff' },
+  { label:'INSTALLATIONS',angle: 45, key:'2', url:'https://installation-attention-view.vercel.app',  color:'#38bdf8' },
+  { label:'OPERATIONS',   angle: 90, key:'3', url:'https://baas-maintenance.vercel.app',             color:'#2dd4bf' },
+  { label:'EVIDENCE',     angle:135, key:null, url:'evidence.html',      color:'#4ade80' },
+  { label:'INTEGRATIONS', angle:180, key:null, url:'integrations.html',  color:'#a3e635' },
+  { label:'GOVERNANCE',   angle:225, key:null, url:'governance.html',    color:'#f472b6' },
+  { label:'ANALYTICS',    angle:270, key:null, url:'analytics.html',     color:'#fb923c' },
+  { label:'DEPLOYMENT',   angle:315, key:'4', url:'deployment.html',     color:'#a78bfa' },
 ];
 
 /* ─── Geometry ─────────────────────────────────────────────── */
@@ -342,6 +352,20 @@ function el(tag, attrs = {}) {
 }
 
 /* ─── Build SVG ─────────────────────────────────────────────── */
+// Per-wedge radial gradients — dark at hub, tinted glow at rim
+const defs = el('defs');
+WEDGES.forEach((w, i) => {
+  const grad = el('radialGradient', {
+    id: `wg${i}`, gradientUnits: 'userSpaceOnUse',
+    cx: 0, cy: 0, r: R2,
+  });
+  [['30%',0.02],['78%',0.10],['100%',0.22]].forEach(([off,op]) => {
+    grad.appendChild(el('stop', { offset: off, 'stop-color': w.color, 'stop-opacity': op }));
+  });
+  defs.appendChild(grad);
+});
+svg.appendChild(defs);
+
 // Hub background circle
 svg.appendChild(el('circle', { cx:0, cy:0, r:152, class:'hub-bg' }));
 
@@ -354,8 +378,13 @@ WEDGES.forEach(w => {
   const lp    = pt(LABEL_R, w.angle);
   const g = el('g', { class:'wedge' });
 
-  // Wedge shape
-  g.appendChild(el('path', { d: sector(R1, R2, start, end), class:'wedge-bg' }));
+  // Wedge shape — per-wedge neon stroke + gradient fill
+  const i = WEDGES.indexOf(w);
+  g.style.color = w.color;   // drives currentColor drop-shadow glow
+  g.appendChild(el('path', {
+    d: sector(R1, R2, start, end), class:'wedge-bg',
+    fill: `url(#wg${i})`, stroke: w.color,
+  }));
 
   // Word label (horizontal, centered in wedge)
   const txt = el('text', {
@@ -374,6 +403,7 @@ WEDGES.forEach(w => {
       x: kp.x.toFixed(2), y: kp.y.toFixed(2),
       class: 'wedge-key',
       'font-size': '9',
+      fill: w.color,
     });
     kt.textContent = w.key;
     g.appendChild(kt);
@@ -385,6 +415,7 @@ WEDGES.forEach(w => {
 
 // Hub rings (drawn on top so hub stays crisp over wedge edges)
 svg.appendChild(el('circle', { cx:0, cy:0, r:154, class:'hub-ring' }));
+svg.appendChild(el('circle', { cx:0, cy:0, r:136, class:'hub-dash' }));
 svg.appendChild(el('circle', { cx:0, cy:0, r:148, class:'hub-pulse' }));
 
 // Outer decorative ring
