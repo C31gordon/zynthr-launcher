@@ -3,26 +3,23 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="theme-color" content="#050507">
+<meta name="theme-color" content="#000008">
 <title>ZYNTHR</title>
 <style>
 /* ============================================================
-   ZYNTHR OPERATING ENVIRONMENT
-   Pentagon Briefing · Corry Station · July 28 2026
-   R13 Visual Language — near-black, teal accent, mono labels
+   ZYNTHR OPERATING ENVIRONMENT  ·  Pentagon Briefing
+   Corry Station · July 28 2026
+   Deck-match visual language — starfield, arc-ring wheel,
+   luminous hub, near-white labels, subtle teal accent
    ============================================================ */
 :root {
-  --bg:          #06060a;
-  --surface:     #10101a;   /* clearly distinct wedge fill */
+  --bg:          #000008;
   --teal:        #0d9488;
   --teal-bright: #14b8a6;
-  --teal-dim:    rgba(13, 148, 136, 0.15);
-  --teal-border: rgba(20, 184, 166, 0.6);  /* projector-visible teal stroke */
-  --text:        #d8eaf4;
-  --text-dim:    #d0e4ee;   /* wedge labels — near-white for projectors */
-  --text-muted:  #5a7888;  /* secondary subtext */
-  --mono:        'Courier New', 'Courier', 'Lucida Console', monospace;
-  --sans:        'Helvetica Neue', 'Helvetica', 'Arial', sans-serif;
+  --text:        #d0e8f4;
+  --text-dim:    #4a6878;
+  --mono:        'Courier New', 'Courier', monospace;
+  --sans:        'Helvetica Neue', 'Helvetica', Arial, sans-serif;
 }
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -37,110 +34,102 @@ html, body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* Grid backdrop + center vignette — FORTE reference language */
+/* ─── Starfield canvas ─── */
+#stars {
+  position: fixed; inset: 0;
+  width: 100%; height: 100%;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ─── Launcher ─── */
 .launcher {
-  position: fixed;
-  inset: 0;
+  position: fixed; inset: 0;
   display: flex;
   align-items: center;
   justify-content: center;
-  background:
-    radial-gradient(ellipse 60% 60% at 50% 50%,
-      rgba(60,110,160,0.06) 0%,
-      transparent 70%),
-    linear-gradient(rgba(110,150,200,0.045) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(110,150,200,0.045) 1px, transparent 1px);
-  background-size: 100% 100%, 56px 56px, 56px 56px;
+  z-index: 1;
 }
 
 .wheel-container {
   position: relative;
-  width:  min(84vw, 84vh);
-  height: min(84vw, 84vh);
+  width:  min(88vw, 88vh);
+  height: min(88vw, 88vh);
 }
 
 .wheel-svg {
-  width: 100%;
-  height: 100%;
+  width: 100%; height: 100%;
   overflow: visible;
 }
 
-/* ─── Wedge elements — per-wedge neon accents ─── */
+/* ─── SVG Element Styles ─── */
 .wedge { cursor: pointer; }
 
 .wedge-bg {
-  stroke-width: 1.6;
-  fill-opacity: 1;
-  filter: drop-shadow(0 0 5px currentColor);
-  transition: filter 0.25s ease, stroke-width 0.25s ease, fill-opacity 0.25s ease;
+  fill: rgba(13,148,136,0.025);
+  transition: fill 0.28s ease;
+}
+.wedge:hover .wedge-bg { fill: rgba(13,148,136,0.08); }
+
+.wedge-arc {
+  fill: none;
+  stroke: rgba(20,184,166,0.32);
+  stroke-width: 2;
+  stroke-linecap: butt;
+  transition: stroke 0.28s ease, stroke-width 0.28s ease, filter 0.28s ease;
+}
+.wedge:hover .wedge-arc {
+  stroke: rgba(20,184,166,0.9);
+  stroke-width: 2.8;
+  filter: drop-shadow(0 0 7px rgba(20,184,166,0.55));
 }
 
-.wedge:hover .wedge-bg {
-  stroke-width: 2.2;
-  filter: drop-shadow(0 0 14px currentColor) drop-shadow(0 0 26px currentColor);
+.wedge-radial {
+  fill: none;
+  stroke: rgba(170,210,228,0.08);
+  stroke-width: 0.7;
+  pointer-events: none;
 }
 
 .wedge-label {
-  fill: #e8f2f8;
+  fill: rgba(205,232,248,0.82);
   font-family: var(--mono);
-  letter-spacing: 3;
+  font-size: 22px;
+  letter-spacing: 3px;
   text-anchor: middle;
   dominant-baseline: middle;
   pointer-events: none;
-  transition: fill 0.22s ease;
+  transition: fill 0.24s ease;
 }
-
 .wedge:hover .wedge-label { fill: #ffffff; }
 
-.wedge-key {
+.wedge-num {
+  fill: rgba(150,200,220,0.38);
   font-family: var(--mono);
+  font-size: 9.5px;
+  letter-spacing: 2px;
   text-anchor: middle;
   dominant-baseline: middle;
   pointer-events: none;
-  opacity: 0.9;
-  font-weight: bold;
-  transition: opacity 0.22s ease;
+  transition: fill 0.24s ease;
 }
+.wedge:hover .wedge-num { fill: rgba(20,184,166,0.75); }
 
-.wedge:hover .wedge-key { opacity: 1; }
-
-/* ─── Hub rings ─── */
-.hub-bg    { fill: #0a0d14; }
-.hub-ring  { fill: none; stroke: rgba(110,160,210,0.35); stroke-width: 1; }
-.hub-dash  {
-  fill: none; stroke: rgba(140,180,220,0.5); stroke-width: 1.2;
-  stroke-dasharray: 2.5 7;
-  animation: hub-rotate 90s linear infinite;
-  transform-origin: 0 0;
+.wedge-key {
+  fill: rgba(20,184,166,0.40);
+  font-family: var(--mono);
+  font-size: 7.5px;
+  letter-spacing: 0.5px;
+  text-anchor: middle;
+  dominant-baseline: middle;
+  pointer-events: none;
+  transition: fill 0.24s ease;
 }
-@keyframes hub-rotate { to { transform: rotate(360deg); } }
-.hub-pulse { fill: none; stroke: var(--teal); stroke-width: 0.8; }
+.wedge:hover .wedge-key { fill: rgba(20,184,166,0.9); }
 
-@keyframes breathe {
-  0%,100% { stroke-opacity: 0.25; }
-  50%      { stroke-opacity: 0.75; }
-}
-@keyframes outer-drift {
-  0%,100% { stroke-opacity: 0.12; }
-  50%      { stroke-opacity: 0.28; }
-}
-
-.hub-pulse   { animation: breathe 4.5s ease-in-out infinite; }
-.outer-ring  {
-  fill: none; stroke: var(--teal); stroke-width: 0.3;
-  stroke-dasharray: 3 8;
-  animation: outer-drift 7s ease-in-out infinite;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .hub-pulse, .outer-ring { animation: none; stroke-opacity: 0.3; }
-  .wedge-bg, .wedge-label { transition: none; }
-}
-
-/* ─── Hub HTML overlay ─── */
+/* ─── Hub overlay ─── */
 .hub-overlay {
-  position: absolute;
-  inset: 0;
+  position: absolute; inset: 0;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -151,10 +140,10 @@ html, body {
 
 .wordmark {
   font-family: var(--sans);
-  font-size:   2vmin;
+  font-size: 1.85vmin;
   font-weight: 200;
-  letter-spacing: 0.55em;
-  padding-right: 0.55em;   /* compensate trailing kerning */
+  letter-spacing: 0.58em;
+  padding-right: 0.58em;
   color: var(--teal-bright);
   text-transform: uppercase;
   display: block;
@@ -162,56 +151,92 @@ html, body {
 
 .subline {
   font-family: var(--mono);
-  font-size:   0.82vmin;
+  font-size: 0.72vmin;
   letter-spacing: 0.16em;
-  color: var(--text-muted);
+  color: var(--text-dim);
   text-transform: uppercase;
-  margin-top: 7px;
-  line-height: 1.6;
-  opacity: 0.85;
+  margin-top: 8px;
+  line-height: 1.7;
+  opacity: 0.8;
 }
 
-/* ─── Vision bottom affordance ─── */
-.vision-link {
+/* ─── Corner & footer tags ─── */
+.brand-tag {
   position: fixed;
-  bottom: clamp(18px, 3.2vh, 40px);
+  top: clamp(14px, 2vh, 24px);
+  left: clamp(18px, 2vw, 32px);
+  font-family: var(--mono);
+  font-size: clamp(8px, 0.7vmin, 10px);
+  letter-spacing: 0.32em;
+  color: var(--teal-bright);
+  text-transform: uppercase;
+  opacity: 0.65;
+  pointer-events: none;
+  z-index: 2;
+}
+
+.sys-tag {
+  position: fixed;
+  top: clamp(14px, 2vh, 24px);
+  right: clamp(18px, 2vw, 32px);
+  font-family: var(--mono);
+  font-size: clamp(7px, 0.65vmin, 9px);
+  letter-spacing: 0.2em;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  opacity: 0.45;
+  pointer-events: none;
+  z-index: 2;
+}
+
+.footer-tag {
+  position: fixed;
+  bottom: clamp(9px, 1.4vh, 16px);
   left: 50%;
   transform: translateX(-50%);
   font-family: var(--mono);
-  font-size: clamp(8px, 0.85vmin, 11px);
-  letter-spacing: 0.3em;
+  font-size: clamp(7px, 0.62vmin, 9px);
+  letter-spacing: 0.22em;
   color: var(--text-dim);
+  text-transform: uppercase;
+  opacity: 0.38;
+  pointer-events: none;
+  z-index: 2;
+  white-space: nowrap;
+}
+
+.vision-link {
+  position: fixed;
+  bottom: clamp(26px, 3.8vh, 48px);
+  left: 50%;
+  transform: translateX(-50%);
+  font-family: var(--mono);
+  font-size: clamp(8px, 0.84vmin, 11px);
+  letter-spacing: 0.3em;
+  color: rgba(195,225,238,0.5);
   text-decoration: none;
   text-transform: uppercase;
-  background: none;
-  border: none;
-  cursor: pointer;
-  transition: color 0.2s;
+  background: none; border: none; cursor: pointer;
+  transition: color 0.22s;
   white-space: nowrap;
   padding: 8px 20px;
+  z-index: 2;
 }
 .vision-link::before { content: '—\00a0'; }
 .vision-link::after  { content: '\00a0—'; }
 .vision-link:hover   { color: var(--teal-bright); }
 
-/* ─── Corner system tag ─── */
-/* ─── Splash — cinematic opening screen ─── */
+/* ─── Splash screen ─── */
 #splash {
-  position: fixed;
-  inset: 0;
-  z-index: 100;
+  position: fixed; inset: 0; z-index: 100;
   background: #000;
-  cursor: pointer;
-  overflow: hidden;
-  opacity: 1;
-  transition: opacity 1.4s ease;
+  cursor: pointer; overflow: hidden;
+  opacity: 1; transition: opacity 1.4s ease;
 }
 #splash.dismissed { opacity: 0; pointer-events: none; }
 #splash img {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
+  position: absolute; inset: 0;
+  width: 100%; height: 100%;
   object-fit: cover;
   animation: splashZoom 45s ease-out forwards;
   transform-origin: 50% 42%;
@@ -221,69 +246,67 @@ html, body {
   to   { transform: scale(1.08); }
 }
 #splash .splash-vignette {
-  position: absolute;
-  inset: 0;
+  position: absolute; inset: 0;
   background: radial-gradient(ellipse 80% 75% at 50% 45%, transparent 55%, rgba(0,0,0,0.55) 100%);
   pointer-events: none;
 }
 #splash .splash-hint {
   position: absolute;
-  bottom: 4.5%;
-  left: 50%;
-  transform: translateX(-50%);
-  font-family: var(--mono);
-  font-size: 12px;
-  letter-spacing: 6px;
-  text-transform: uppercase;
-  color: rgba(216, 234, 244, 0.0);
+  bottom: 4.5%; left: 50%; transform: translateX(-50%);
+  font-family: var(--mono); font-size: 12px;
+  letter-spacing: 6px; text-transform: uppercase;
+  color: rgba(216,234,244,0);
   animation: hintFade 3s ease 5s forwards, hintPulse 3.6s ease-in-out 8s infinite;
   pointer-events: none;
 }
-@keyframes hintFade { to { color: rgba(216, 234, 244, 0.45); } }
-@keyframes hintPulse {
-  0%, 100% { opacity: 1; }
-  50%      { opacity: 0.45; }
-}
+@keyframes hintFade  { to { color: rgba(216,234,244,0.45); } }
+@keyframes hintPulse { 0%,100%{opacity:1;} 50%{opacity:0.45;} }
 
-/* Wheel entrance after splash */
+/* ─── Entrance animations ─── */
 body.pre-enter .launcher,
 body.pre-enter .vision-link,
-body.pre-enter .sys-tag { opacity: 0; }
+body.pre-enter .sys-tag,
+body.pre-enter .brand-tag,
+body.pre-enter .footer-tag { opacity: 0; }
+
 body.entering .launcher {
-  animation: wheelIn 1.6s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  animation: wheelIn 1.6s cubic-bezier(0.22,1,0.36,1) forwards;
 }
 body.entering .vision-link,
-body.entering .sys-tag {
+body.entering .sys-tag,
+body.entering .brand-tag,
+body.entering .footer-tag {
   animation: fadeIn 1.6s ease 0.6s forwards;
 }
 @keyframes wheelIn {
   from { opacity: 0; transform: scale(0.94); }
   to   { opacity: 1; transform: scale(1); }
 }
-@keyframes fadeIn { to { opacity: 0.5; } }
+@keyframes fadeIn { to { opacity: 0.45; } }
 
-.sys-tag {
-  position: fixed;
-  top: clamp(14px, 2vh, 24px);
-  right: clamp(18px, 2vw, 32px);
-  font-family: var(--mono);
-  font-size: clamp(7px, 0.65vmin, 9px);
-  letter-spacing: 0.2em;
-  color: var(--text-muted);
-  text-transform: uppercase;
-  opacity: 0.5;
-  pointer-events: none;
+/* ─── Hub SVG animations ─── */
+@keyframes hubDash   { from { stroke-dashoffset: 0; } to { stroke-dashoffset: -88; } }
+@keyframes hubPulse  { 0%,100% { stroke-opacity: 0.18; } 50% { stroke-opacity: 0.58; } }
+@keyframes outerDrift{ 0%,100% { stroke-opacity: 0.08; } 50% { stroke-opacity: 0.22; } }
+
+@media (prefers-reduced-motion: reduce) {
+  .wedge-bg, .wedge-arc, .wedge-label, .wedge-num { transition: none; }
 }
 </style>
 </head>
 <body class="pre-enter">
 
+<!-- Cinematic splash (unchanged) -->
 <div id="splash">
   <img src="splash.jpg" alt="">
   <div class="splash-vignette"></div>
   <div class="splash-hint">Click to Enter</div>
 </div>
 
+<!-- Starfield canvas -->
+<canvas id="stars"></canvas>
+
+<!-- Operating wheel -->
 <div class="launcher">
   <div class="wheel-container">
     <svg class="wheel-svg" viewBox="-500 -500 1000 1000" id="wheel"></svg>
@@ -296,46 +319,91 @@ body.entering .sys-tag {
   </div>
 </div>
 
+<!-- Corner / footer elements -->
+<div class="brand-tag">ZYNTHR</div>
+<div class="sys-tag" id="sysTime"></div>
+<div class="footer-tag">VERSION 2026.07.28 &middot; SIMULATED &middot; OFFLINE &middot; READY</div>
 <a class="vision-link" href="vision.html" title="Press V or 5">VISION</a>
-<div class="sys-tag">OPERATING ENVIRONMENT</div>
 
 <script>
-/* ─── Wheel Configuration ─────────────────────────────────── */
+/* ─── Starfield ─── */
+(function () {
+  const canvas = document.getElementById('stars');
+  const ctx = canvas.getContext('2d');
+  let stars = [];
+
+  function resize() {
+    canvas.width  = window.innerWidth;
+    canvas.height = window.innerHeight;
+    stars = Array.from({ length: 240 }, () => ({
+      x: Math.random() * canvas.width,
+      y: Math.random() * canvas.height,
+      r: Math.random() * 0.9 + 0.08,
+      a: Math.random() * 0.42 + 0.06,
+    }));
+    draw();
+  }
+
+  function draw() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    stars.forEach(s => {
+      ctx.beginPath();
+      ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(255,255,255,${s.a})`;
+      ctx.fill();
+    });
+  }
+
+  resize();
+  window.addEventListener('resize', resize);
+})();
+
+/* ─── Live UTC clock ─── */
+function updateClock() {
+  const now = new Date();
+  const p = n => String(n).padStart(2, '0');
+  document.getElementById('sysTime').textContent =
+    `${now.getUTCFullYear()}.${p(now.getUTCMonth()+1)}.${p(now.getUTCDate())} · ${p(now.getUTCHours())}:${p(now.getUTCMinutes())} UTC`;
+}
+updateClock();
+setInterval(updateClock, 30000);
+
+/* ─── Wheel Configuration — 6 wedges ─── */
 const WEDGES = [
-  { label:'COMMAND',      angle:  0, key:'1', url:'https://zynthr-todays-brief.vercel.app',           color:'#5ba8ff' },
-  { label:'INSTALLATIONS',angle: 45, key:'2', url:'https://installation-attention-view.vercel.app',  color:'#38bdf8' },
-  { label:'OPERATIONS',   angle: 90, key:'3', url:'https://baas-maintenance.vercel.app/t/navy/wo/9c9259b4-9e60-4225-8642-fdc08353c7ab',             color:'#2dd4bf' },
-  { label:'EVIDENCE',     angle:135, key:null, url:'evidence.html',      color:'#4ade80' },
-  { label:'INTEGRATIONS', angle:180, key:null, url:'integrations.html',  color:'#a3e635' },
-  { label:'GOVERNANCE',   angle:225, key:null, url:'governance.html',    color:'#f472b6' },
-  { label:'ANALYTICS',    angle:270, key:null, url:'analytics.html',     color:'#fb923c' },
-  { label:'DEPLOYMENT',   angle:315, key:'4', url:'deployment.html',     color:'#b794ff' },
+  { label: 'COMMAND',       num: '01', angle:   0, key: '1', url: 'https://zynthr-todays-brief.vercel.app' },
+  { label: 'INSTALLATIONS', num: '02', angle:  60, key: '2', url: 'https://installation-attention-view.vercel.app' },
+  { label: 'OPERATIONS',    num: '03', angle: 120, key: '3', url: 'https://baas-maintenance.vercel.app/t/navy/wo/9c9259b4-9e60-4225-8642-fdc08353c7ab' },
+  { label: 'DEPLOYMENT',    num: '04', angle: 180, key: '4', url: 'deployment.html' },
+  { label: 'GOVERNANCE',    num: '05', angle: 240, key: null, url: 'governance.html' },
+  { label: 'INTEGRATIONS',  num: '06', angle: 300, key: null, url: 'integrations.html' },
 ];
 
-/* ─── Geometry ─────────────────────────────────────────────── */
-const R1       = 154;   // inner radius (gap between hub and wedges)
-const R2       = 442;   // outer radius
-const GAP_EACH = 2.6;   // degrees of gap on each side of each wedge boundary
-const LABEL_R  = 306;   // radial position of word labels
-const KEY_R    = 414;   // radial position of keyboard-hint digits
-const OUTER_R  = 468;   // decorative outer ring
+/* ─── Geometry ─── */
+const R1        = 158;   // hub outer radius (inner edge of wedge ring)
+const R2        = 438;   // wedge outer radius
+const GAP_DEG   = 2.8;   // degrees gap on each side of wedge boundary
+const HALF_SPAN = 30 - GAP_DEG; // = 27.2° half-angle of each wedge
+const LABEL_R   = 295;   // word label radial position
+const NUM_R     = 395;   // number label radial position
+const KEY_R     = 422;   // keyboard key label position
+const OUTER_R   = 465;   // decorative outer ring radius
 
-const ns = 'http://www.w3.org/2000/svg';
+const ns  = 'http://www.w3.org/2000/svg';
 const svg = document.getElementById('wheel');
 
 const toRad = d => d * Math.PI / 180;
 
-// Polar to Cartesian — 0° = top, clockwise
+// Polar → Cartesian: 0° = top, clockwise
 function pt(r, deg) {
   const rad = toRad(deg - 90);
   return { x: r * Math.cos(rad), y: r * Math.sin(rad) };
 }
 
-// SVG path for an annular sector
-function sector(r1, r2, startDeg, endDeg) {
-  const s1 = pt(r1, startDeg), e1 = pt(r1, endDeg);
-  const s2 = pt(r2, startDeg), e2 = pt(r2, endDeg);
-  const big = (endDeg - startDeg) > 180 ? 1 : 0;
+// Annular sector path
+function sector(r1, r2, a0, a1) {
+  const s1 = pt(r1, a0), e1 = pt(r1, a1);
+  const s2 = pt(r2, a0), e2 = pt(r2, a1);
+  const big = (a1 - a0) > 180 ? 1 : 0;
   const f = v => v.toFixed(3);
   return [
     `M${f(s1.x)} ${f(s1.y)}`,
@@ -346,83 +414,142 @@ function sector(r1, r2, startDeg, endDeg) {
   ].join(' ');
 }
 
+// Outer arc only (for visible ring edge per wedge)
+function arcPath(r, a0, a1) {
+  const s = pt(r, a0), e = pt(r, a1);
+  const big = (a1 - a0) > 180 ? 1 : 0;
+  return `M${s.x.toFixed(3)} ${s.y.toFixed(3)} A${r} ${r} 0 ${big} 1 ${e.x.toFixed(3)} ${e.y.toFixed(3)}`;
+}
+
 function el(tag, attrs = {}) {
   const e = document.createElementNS(ns, tag);
-  for (const [k,v] of Object.entries(attrs)) e.setAttribute(k, String(v));
+  for (const [k, v] of Object.entries(attrs)) e.setAttribute(k, String(v));
   return e;
 }
 
-/* ─── Build SVG ─────────────────────────────────────────────── */
-// Per-wedge radial gradients — dark at hub, tinted glow at rim
+/* ─── Build SVG ─── */
+
+// Defs
 const defs = el('defs');
-WEDGES.forEach((w, i) => {
-  const grad = el('radialGradient', {
-    id: `wg${i}`, gradientUnits: 'userSpaceOnUse',
-    cx: 0, cy: 0, r: R2,
-  });
-  [['30%',0.02],['78%',0.10],['100%',0.22]].forEach(([off,op]) => {
-    grad.appendChild(el('stop', { offset: off, 'stop-color': w.color, 'stop-opacity': op }));
-  });
-  defs.appendChild(grad);
+
+// Hub glow gradient (teal radial glow from center)
+const hubGrad = el('radialGradient', {
+  id: 'hubGlow', gradientUnits: 'userSpaceOnUse', cx: 0, cy: 0, r: 220
 });
+[
+  ['0%',  '#14b8a6', 0.50],
+  ['30%', '#0d9488', 0.14],
+  ['65%', '#020c10', 0.06],
+  ['100%','#000008', 0.00],
+].forEach(([off, col, op]) =>
+  hubGrad.appendChild(el('stop', { offset: off, 'stop-color': col, 'stop-opacity': op }))
+);
+defs.appendChild(hubGrad);
+
+// Hub fill (dark center)
+const hubFill = el('radialGradient', {
+  id: 'hubFill', gradientUnits: 'userSpaceOnUse', cx: 0, cy: 0, r: 158
+});
+[['0%','#0b1d24',1],['100%','#050a0e',1]].forEach(([off,col,op]) =>
+  hubFill.appendChild(el('stop', { offset:off, 'stop-color':col, 'stop-opacity':op }))
+);
+defs.appendChild(hubFill);
+
 svg.appendChild(defs);
 
-// Hub background circle
-svg.appendChild(el('circle', { cx:0, cy:0, r:152, class:'hub-bg' }));
+// 1. Hub outer glow (behind everything)
+svg.appendChild(el('circle', { cx:0, cy:0, r:220, fill:'url(#hubGlow)' }));
 
-// Wedges
-const HALF_SPAN = (360 / 8) / 2 - GAP_EACH; // 22.5 - 2.6 = 19.9°
-
+// 2. Wedge groups
 WEDGES.forEach(w => {
   const start = w.angle - HALF_SPAN;
   const end   = w.angle + HALF_SPAN;
   const lp    = pt(LABEL_R, w.angle);
-  const g = el('g', { class:'wedge' });
+  const np    = pt(NUM_R, w.angle);
+  const kp    = pt(KEY_R, w.angle);
 
-  // Wedge shape — per-wedge neon stroke + gradient fill
-  const i = WEDGES.indexOf(w);
-  g.style.color = w.color;   // drives currentColor drop-shadow glow
+  const g = el('g', { class: 'wedge' });
+
+  // Hover area (annular sector, near-transparent fill)
   g.appendChild(el('path', {
-    d: sector(R1, R2, start, end), class:'wedge-bg',
-    fill: `url(#wg${i})`, stroke: w.color,
+    d: sector(R1, R2, start, end),
+    class: 'wedge-bg',
   }));
 
-  // Word label (horizontal, centered in wedge)
-  const txt = el('text', {
-    x: lp.x.toFixed(2), y: lp.y.toFixed(2),
-    class: 'wedge-label',
-    'font-size': '15',
-    'letter-spacing': '3',
-  });
-  txt.textContent = w.label;
-  g.appendChild(txt);
+  // Outer arc (visible teal ring segment)
+  g.appendChild(el('path', {
+    d: arcPath(R2, start, end),
+    class: 'wedge-arc',
+  }));
 
-  // Keyboard shortcut hint near outer edge
+  // Word label — large spaced caps
+  const lblT = el('text', { x: lp.x.toFixed(2), y: lp.y.toFixed(2), class: 'wedge-label' });
+  lblT.textContent = w.label;
+  g.appendChild(lblT);
+
+  // Number label
+  const numT = el('text', { x: np.x.toFixed(2), y: np.y.toFixed(2), class: 'wedge-num' });
+  numT.textContent = w.num;
+  g.appendChild(numT);
+
+  // Key hint
   if (w.key) {
-    const kp = pt(KEY_R, w.angle);
-    const kt = el('text', {
-      x: kp.x.toFixed(2), y: kp.y.toFixed(2),
-      class: 'wedge-key',
-      'font-size': '9',
-      fill: w.color,
-    });
-    kt.textContent = w.key;
-    g.appendChild(kt);
+    const kT = el('text', { x: kp.x.toFixed(2), y: kp.y.toFixed(2), class: 'wedge-key' });
+    kT.textContent = `[ ${w.key} ]`;
+    g.appendChild(kT);
   }
 
   g.addEventListener('click', () => { window.location = w.url; });
   svg.appendChild(g);
 });
 
-// Hub rings (drawn on top so hub stays crisp over wedge edges)
-svg.appendChild(el('circle', { cx:0, cy:0, r:154, class:'hub-ring' }));
-svg.appendChild(el('circle', { cx:0, cy:0, r:136, class:'hub-dash' }));
-svg.appendChild(el('circle', { cx:0, cy:0, r:148, class:'hub-pulse' }));
+// 3. Radial divider lines (at each 60° wedge boundary, drawn on top of wedge fills)
+for (let i = 0; i < 6; i++) {
+  const deg = i * 60 - 30;  // boundaries: -30, 30, 90, 150, 210, 270
+  const p1 = pt(R1 + 3, deg);
+  const p2 = pt(R2, deg);
+  svg.appendChild(el('line', {
+    x1: p1.x.toFixed(3), y1: p1.y.toFixed(3),
+    x2: p2.x.toFixed(3), y2: p2.y.toFixed(3),
+    class: 'wedge-radial',
+  }));
+}
 
-// Outer decorative ring
-svg.appendChild(el('circle', { cx:0, cy:0, r:OUTER_R, class:'outer-ring' }));
+// 4. Outer decorative ring
+svg.appendChild(el('circle', { cx:0, cy:0, r: OUTER_R,
+  fill: 'none',
+  stroke: 'rgba(20,184,166,0.10)',
+  'stroke-width': '0.6',
+  style: 'animation: outerDrift 7s ease-in-out infinite;'
+}));
 
-/* ─── Keyboard navigation ────────────────────────────────────── */
+// 5. Hub fill circle (dark, covers inner wedge edges cleanly)
+svg.appendChild(el('circle', { cx:0, cy:0, r:157, fill:'url(#hubFill)' }));
+
+// 6. Hub structural ring (outer edge of hub)
+svg.appendChild(el('circle', { cx:0, cy:0, r:157,
+  fill: 'none',
+  stroke: 'rgba(20,184,166,0.28)',
+  'stroke-width': '1.2',
+}));
+
+// 7. Hub rotating dashed ring
+svg.appendChild(el('circle', { cx:0, cy:0, r:142,
+  fill: 'none',
+  stroke: 'rgba(150,200,218,0.14)',
+  'stroke-width': '1',
+  'stroke-dasharray': '3.5 8.5',
+  style: 'animation: hubDash 65s linear infinite;',
+}));
+
+// 8. Hub inner pulse ring (breathes slowly)
+svg.appendChild(el('circle', { cx:0, cy:0, r:150,
+  fill: 'none',
+  stroke: 'rgba(20,184,166,0.45)',
+  'stroke-width': '0.8',
+  style: 'animation: hubPulse 4.8s ease-in-out infinite;',
+}));
+
 /* ─── Splash dismissal ─── */
 const splash = document.getElementById('splash');
 let splashActive = true;
@@ -440,17 +567,20 @@ splash.addEventListener('click', enterSystem);
 
 document.addEventListener('keydown', e => {
   if (splashActive) {
-    if (e.key === 'Enter' || e.key === ' ' || e.key === 'Escape') { enterSystem(); return; }
-    // number keys fall through — presenter can jump straight to a section
+    if (e.key === 'Enter' || e.key === ' ' || e.key === 'Escape') {
+      enterSystem();
+      return;
+    }
+    // Number keys fall through so presenter can jump straight to a section
   }
   switch (e.key) {
     case '1': window.location = WEDGES[0].url; break;  // COMMAND
     case '2': window.location = WEDGES[1].url; break;  // INSTALLATIONS
     case '3': window.location = WEDGES[2].url; break;  // OPERATIONS
-    case '4': window.location = WEDGES[7].url; break;  // DEPLOYMENT
+    case '4': window.location = WEDGES[3].url; break;  // DEPLOYMENT
     case '5':
     case 'v':
-    case 'V': window.location = 'vision.html'; break;  // VISION
+    case 'V': window.location = 'vision.html';  break;  // VISION
   }
 });
 </script>
