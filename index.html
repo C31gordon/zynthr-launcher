@@ -12,15 +12,15 @@
    R13 Visual Language — near-black, teal accent, mono labels
    ============================================================ */
 :root {
-  --bg:          #050507;
-  --surface:     #09090e;
+  --bg:          #050508;
+  --surface:     #0d0d14;   /* lighter fill so wedges survive projection */
   --teal:        #0d9488;
   --teal-bright: #14b8a6;
-  --teal-dim:    rgba(13, 148, 136, 0.08);
-  --teal-border: rgba(13, 148, 136, 0.28);
-  --text:        #c0d4de;
-  --text-dim:    #5a7888;  /* brightened for projector readability */
-  --text-muted:  #1c2a35;
+  --teal-dim:    rgba(13, 148, 136, 0.12);
+  --teal-border: rgba(13, 148, 136, 0.55);  /* visible on projectors */
+  --text:        #c8dce8;
+  --text-dim:    #90b0c2;   /* projector-safe label brightness */
+  --text-muted:  #3a5262;  /* subtext */
   --mono:        'Courier New', 'Courier', 'Lucida Console', monospace;
   --sans:        'Helvetica Neue', 'Helvetica', 'Arial', sans-serif;
 }
@@ -67,7 +67,7 @@ html, body {
 .wedge-bg {
   fill: var(--surface);
   stroke: var(--teal-border);
-  stroke-width: 0.5;
+  stroke-width: 0.9;
   transition: fill 0.22s ease, stroke-width 0.22s ease;
 }
 
