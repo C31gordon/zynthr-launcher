@@ -184,6 +184,73 @@ html, body {
 .vision-link:hover   { color: var(--teal-bright); }
 
 /* ─── Corner system tag ─── */
+/* ─── Splash — cinematic opening screen ─── */
+#splash {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  background: #000;
+  cursor: pointer;
+  overflow: hidden;
+  opacity: 1;
+  transition: opacity 1.4s ease;
+}
+#splash.dismissed { opacity: 0; pointer-events: none; }
+#splash img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  animation: splashZoom 45s ease-out forwards;
+  transform-origin: 50% 42%;
+}
+@keyframes splashZoom {
+  from { transform: scale(1.0); }
+  to   { transform: scale(1.08); }
+}
+#splash .splash-vignette {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse 80% 75% at 50% 45%, transparent 55%, rgba(0,0,0,0.55) 100%);
+  pointer-events: none;
+}
+#splash .splash-hint {
+  position: absolute;
+  bottom: 4.5%;
+  left: 50%;
+  transform: translateX(-50%);
+  font-family: var(--mono);
+  font-size: 12px;
+  letter-spacing: 6px;
+  text-transform: uppercase;
+  color: rgba(216, 234, 244, 0.0);
+  animation: hintFade 3s ease 5s forwards, hintPulse 3.6s ease-in-out 8s infinite;
+  pointer-events: none;
+}
+@keyframes hintFade { to { color: rgba(216, 234, 244, 0.45); } }
+@keyframes hintPulse {
+  0%, 100% { opacity: 1; }
+  50%      { opacity: 0.45; }
+}
+
+/* Wheel entrance after splash */
+body.pre-enter .launcher,
+body.pre-enter .vision-link,
+body.pre-enter .sys-tag { opacity: 0; }
+body.entering .launcher {
+  animation: wheelIn 1.6s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+body.entering .vision-link,
+body.entering .sys-tag {
+  animation: fadeIn 1.6s ease 0.6s forwards;
+}
+@keyframes wheelIn {
+  from { opacity: 0; transform: scale(0.94); }
+  to   { opacity: 1; transform: scale(1); }
+}
+@keyframes fadeIn { to { opacity: 0.5; } }
+
 .sys-tag {
   position: fixed;
   top: clamp(14px, 2vh, 24px);
@@ -198,7 +265,13 @@ html, body {
 }
 </style>
 </head>
-<body>
+<body class="pre-enter">
+
+<div id="splash">
+  <img src="splash.jpg" alt="">
+  <div class="splash-vignette"></div>
+  <div class="splash-hint">Click to Enter</div>
+</div>
 
 <div class="launcher">
   <div class="wheel-container">
@@ -318,7 +391,26 @@ svg.appendChild(el('circle', { cx:0, cy:0, r:148, class:'hub-pulse' }));
 svg.appendChild(el('circle', { cx:0, cy:0, r:OUTER_R, class:'outer-ring' }));
 
 /* ─── Keyboard navigation ────────────────────────────────────── */
+/* ─── Splash dismissal ─── */
+const splash = document.getElementById('splash');
+let splashActive = true;
+
+function enterSystem() {
+  if (!splashActive) return;
+  splashActive = false;
+  splash.classList.add('dismissed');
+  document.body.classList.remove('pre-enter');
+  document.body.classList.add('entering');
+  setTimeout(() => splash.remove(), 1600);
+}
+
+splash.addEventListener('click', enterSystem);
+
 document.addEventListener('keydown', e => {
+  if (splashActive) {
+    if (e.key === 'Enter' || e.key === ' ' || e.key === 'Escape') { enterSystem(); return; }
+    // number keys fall through — presenter can jump straight to a section
+  }
   switch (e.key) {
     case '1': window.location = WEDGES[0].url; break;  // COMMAND
     case '2': window.location = WEDGES[1].url; break;  // INSTALLATIONS
