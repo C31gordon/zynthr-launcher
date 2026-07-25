@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#000000">
+<title>ZYNTHR</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  width: 100%; height: 100%;
+  background: #000;
+  overflow: hidden;
+  cursor: pointer;
+}
+
+.stage {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.statement {
+  font-family: 'Helvetica Neue', 'Helvetica', 'Arial', sans-serif;
+  font-size: clamp(14px, 2.2vw, 32px);
+  font-weight: 200;
+  letter-spacing: 0.18em;
+  color: #d8eaf4;
+  text-align: center;
+  text-transform: uppercase;
+  opacity: 0;
+  animation: appear 1.8s ease-out 0.6s forwards;
+  padding: 0 8vw;
+  line-height: 1.9;
+}
+
+@keyframes appear {
+  0%   { opacity: 0; }
+  100% { opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .statement {
+    animation: none;
+    opacity: 1;
+  }
+}
+</style>
+</head>
+<body>
+
+<div class="stage" onclick="window.location='index.html'">
+  <p class="statement">
+    Earlier Visibility.&nbsp;&nbsp;Better Decisions.&nbsp;&nbsp;Stronger Readiness.
+  </p>
+</div>
+
+<script>
+document.addEventListener('keydown', () => window.location = 'index.html');
+</script>
+</body>
+</html>

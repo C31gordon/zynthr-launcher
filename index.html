@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#050507">
+<title>ZYNTHR</title>
+<style>
+/* ============================================================
+   ZYNTHR OPERATING ENVIRONMENT
+   Pentagon Briefing · Corry Station · July 28 2026
+   R13 Visual Language — near-black, teal accent, mono labels
+   ============================================================ */
+:root {
+  --bg:          #050507;
+  --surface:     #09090e;
+  --teal:        #0d9488;
+  --teal-bright: #14b8a6;
+  --teal-dim:    rgba(13, 148, 136, 0.08);
+  --teal-border: rgba(13, 148, 136, 0.28);
+  --text:        #c0d4de;
+  --text-dim:    #2e4050;
+  --text-muted:  #1c2a35;
+  --mono:        'Courier New', 'Courier', 'Lucida Console', monospace;
+  --sans:        'Helvetica Neue', 'Helvetica', 'Arial', sans-serif;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  width: 100%; height: 100%;
+  background: var(--bg);
+  overflow: hidden;
+  font-family: var(--mono);
+  color: var(--text);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Subtle center-out radial gradient vignette */
+.launcher {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: radial-gradient(ellipse 55% 55% at 50% 50%,
+    rgba(13,148,136,0.03) 0%,
+    transparent 70%);
+}
+
+.wheel-container {
+  position: relative;
+  width:  min(84vw, 84vh);
+  height: min(84vw, 84vh);
+}
+
+.wheel-svg {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+/* ─── Wedge elements ─── */
+.wedge { cursor: pointer; }
+
+.wedge-bg {
+  fill: var(--surface);
+  stroke: var(--teal-border);
+  stroke-width: 0.5;
+  transition: fill 0.22s ease, stroke-width 0.22s ease;
+}
+
+.wedge:hover .wedge-bg {
+  fill: var(--teal-dim);
+  stroke: var(--teal-bright);
+  stroke-width: 0.9;
+}
+
+.wedge-label {
+  fill: var(--text-dim);
+  font-family: var(--mono);
+  letter-spacing: 3;
+  text-anchor: middle;
+  dominant-baseline: middle;
+  pointer-events: none;
+  transition: fill 0.22s ease;
+}
+
+.wedge:hover .wedge-label { fill: var(--teal-bright); }
+
+.wedge-key {
+  fill: var(--text-muted);
+  font-family: var(--mono);
+  text-anchor: middle;
+  dominant-baseline: middle;
+  pointer-events: none;
+  transition: fill 0.22s ease;
+}
+
+.wedge:hover .wedge-key { fill: rgba(20,184,166,0.5); }
+
+/* ─── Hub rings ─── */
+.hub-bg    { fill: var(--bg); }
+.hub-ring  { fill: none; stroke: var(--teal-border); stroke-width: 0.5; }
+.hub-pulse { fill: none; stroke: var(--teal); stroke-width: 0.8; }
+
+@keyframes breathe {
+  0%,100% { stroke-opacity: 0.25; }
+  50%      { stroke-opacity: 0.75; }
+}
+@keyframes outer-drift {
+  0%,100% { stroke-opacity: 0.12; }
+  50%      { stroke-opacity: 0.28; }
+}
+
+.hub-pulse   { animation: breathe 4.5s ease-in-out infinite; }
+.outer-ring  {
+  fill: none; stroke: var(--teal); stroke-width: 0.3;
+  stroke-dasharray: 3 8;
+  animation: outer-drift 7s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hub-pulse, .outer-ring { animation: none; stroke-opacity: 0.3; }
+  .wedge-bg, .wedge-label { transition: none; }
+}
+
+/* ─── Hub HTML overlay ─── */
+.hub-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+
+.hub-text { text-align: center; }
+
+.wordmark {
+  font-family: var(--sans);
+  font-size:   2vmin;
+  font-weight: 200;
+  letter-spacing: 0.55em;
+  padding-right: 0.55em;   /* compensate trailing kerning */
+  color: var(--teal-bright);
+  text-transform: uppercase;
+  display: block;
+}
+
+.subline {
+  font-family: var(--mono);
+  font-size:   0.72vmin;
+  letter-spacing: 0.16em;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  margin-top: 7px;
+  line-height: 1.6;
+  opacity: 0.7;
+}
+
+/* ─── Vision bottom affordance ─── */
+.vision-link {
+  position: fixed;
+  bottom: clamp(18px, 3.2vh, 40px);
+  left: 50%;
+  transform: translateX(-50%);
+  font-family: var(--mono);
+  font-size: clamp(8px, 0.85vmin, 11px);
+  letter-spacing: 0.3em;
+  color: var(--text-dim);
+  text-decoration: none;
+  text-transform: uppercase;
+  background: none;
+  border: none;
+  cursor: pointer;
+  transition: color 0.2s;
+  white-space: nowrap;
+  padding: 8px 20px;
+}
+.vision-link::before { content: '—\00a0'; }
+.vision-link::after  { content: '\00a0—'; }
+.vision-link:hover   { color: var(--teal-bright); }
+
+/* ─── Corner system tag ─── */
+.sys-tag {
+  position: fixed;
+  top: clamp(14px, 2vh, 24px);
+  right: clamp(18px, 2vw, 32px);
+  font-family: var(--mono);
+  font-size: clamp(7px, 0.65vmin, 9px);
+  letter-spacing: 0.2em;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  opacity: 0.5;
+  pointer-events: none;
+}
+</style>
+</head>
+<body>
+
+<div class="launcher">
+  <div class="wheel-container">
+    <svg class="wheel-svg" viewBox="-500 -500 1000 1000" id="wheel"></svg>
+    <div class="hub-overlay">
+      <div class="hub-text">
+        <span class="wordmark">ZYNTHR</span>
+        <div class="subline">DECISION INTELLIGENCE<br>FOR MILITARY INFRASTRUCTURE</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<a class="vision-link" href="vision.html" title="Press V or 5">VISION</a>
+<div class="sys-tag">OPERATING ENVIRONMENT</div>
+
+<script>
+/* ─── Wheel Configuration ─────────────────────────────────── */
+const WEDGES = [
+  { label:'COMMAND',      angle:  0, key:'1', url:'https://zynthr-todays-brief.vercel.app' },
+  { label:'INSTALLATIONS',angle: 45, key:'2', url:'https://installation-attention-view.vercel.app' },
+  { label:'OPERATIONS',   angle: 90, key:'3', url:'https://baas-maintenance.vercel.app' },
+  { label:'EVIDENCE',     angle:135, key:null, url:'evidence.html' },
+  { label:'INTEGRATIONS', angle:180, key:null, url:'integrations.html' },
+  { label:'GOVERNANCE',   angle:225, key:null, url:'governance.html' },
+  { label:'ANALYTICS',    angle:270, key:null, url:'analytics.html' },
+  { label:'DEPLOYMENT',   angle:315, key:'4', url:'deployment.html' },
+];
+
+/* ─── Geometry ─────────────────────────────────────────────── */
+const R1       = 154;   // inner radius (gap between hub and wedges)
+const R2       = 442;   // outer radius
+const GAP_EACH = 2.6;   // degrees of gap on each side of each wedge boundary
+const LABEL_R  = 306;   // radial position of word labels
+const KEY_R    = 414;   // radial position of keyboard-hint digits
+const OUTER_R  = 468;   // decorative outer ring
+
+const ns = 'http://www.w3.org/2000/svg';
+const svg = document.getElementById('wheel');
+
+const toRad = d => d * Math.PI / 180;
+
+// Polar to Cartesian — 0° = top, clockwise
+function pt(r, deg) {
+  const rad = toRad(deg - 90);
+  return { x: r * Math.cos(rad), y: r * Math.sin(rad) };
+}
+
+// SVG path for an annular sector
+function sector(r1, r2, startDeg, endDeg) {
+  const s1 = pt(r1, startDeg), e1 = pt(r1, endDeg);
+  const s2 = pt(r2, startDeg), e2 = pt(r2, endDeg);
+  const big = (endDeg - startDeg) > 180 ? 1 : 0;
+  const f = v => v.toFixed(3);
+  return [
+    `M${f(s1.x)} ${f(s1.y)}`,
+    `L${f(s2.x)} ${f(s2.y)}`,
+    `A${r2} ${r2} 0 ${big} 1 ${f(e2.x)} ${f(e2.y)}`,
+    `L${f(e1.x)} ${f(e1.y)}`,
+    `A${r1} ${r1} 0 ${big} 0 ${f(s1.x)} ${f(s1.y)} Z`,
+  ].join(' ');
+}
+
+function el(tag, attrs = {}) {
+  const e = document.createElementNS(ns, tag);
+  for (const [k,v] of Object.entries(attrs)) e.setAttribute(k, String(v));
+  return e;
+}
+
+/* ─── Build SVG ─────────────────────────────────────────────── */
+// Hub background circle
+svg.appendChild(el('circle', { cx:0, cy:0, r:152, class:'hub-bg' }));
+
+// Wedges
+const HALF_SPAN = (360 / 8) / 2 - GAP_EACH; // 22.5 - 2.6 = 19.9°
+
+WEDGES.forEach(w => {
+  const start = w.angle - HALF_SPAN;
+  const end   = w.angle + HALF_SPAN;
+  const lp    = pt(LABEL_R, w.angle);
+  const g = el('g', { class:'wedge' });
+
+  // Wedge shape
+  g.appendChild(el('path', { d: sector(R1, R2, start, end), class:'wedge-bg' }));
+
+  // Word label (horizontal, centered in wedge)
+  const txt = el('text', {
+    x: lp.x.toFixed(2), y: lp.y.toFixed(2),
+    class: 'wedge-label',
+    'font-size': '13.5',
+    'letter-spacing': '2.8',
+  });
+  txt.textContent = w.label;
+  g.appendChild(txt);
+
+  // Keyboard shortcut hint near outer edge
+  if (w.key) {
+    const kp = pt(KEY_R, w.angle);
+    const kt = el('text', {
+      x: kp.x.toFixed(2), y: kp.y.toFixed(2),
+      class: 'wedge-key',
+      'font-size': '9',
+    });
+    kt.textContent = w.key;
+    g.appendChild(kt);
+  }
+
+  g.addEventListener('click', () => { window.location = w.url; });
+  svg.appendChild(g);
+});
+
+// Hub rings (drawn on top so hub stays crisp over wedge edges)
+svg.appendChild(el('circle', { cx:0, cy:0, r:154, class:'hub-ring' }));
+svg.appendChild(el('circle', { cx:0, cy:0, r:148, class:'hub-pulse' }));
+
+// Outer decorative ring
+svg.appendChild(el('circle', { cx:0, cy:0, r:OUTER_R, class:'outer-ring' }));
+
+/* ─── Keyboard navigation ────────────────────────────────────── */
+document.addEventListener('keydown', e => {
+  switch (e.key) {
+    case '1': window.location = WEDGES[0].url; break;  // COMMAND
+    case '2': window.location = WEDGES[1].url; break;  // INSTALLATIONS
+    case '3': window.location = WEDGES[2].url; break;  // OPERATIONS
+    case '4': window.location = WEDGES[7].url; break;  // DEPLOYMENT
+    case '5':
+    case 'v':
+    case 'V': window.location = 'vision.html'; break;  // VISION
+  }
+});
+</script>
+</body>
+</html>
