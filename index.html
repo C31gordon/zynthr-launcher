@@ -18,9 +18,9 @@
   --teal-bright: #14b8a6;
   --teal-dim:    rgba(13, 148, 136, 0.15);
   --teal-border: rgba(20, 184, 166, 0.6);  /* projector-visible teal stroke */
-  --text:        #d0e4ee;
-  --text-dim:    #c0d4de;   /* labels — match R13 text-primary level */
-  --text-muted:  #445868;  /* secondary subtext */
+  --text:        #d8eaf4;
+  --text-dim:    #d0e4ee;   /* wedge labels — near-white for projectors */
+  --text-muted:  #5a7888;  /* secondary subtext */
   --mono:        'Courier New', 'Courier', 'Lucida Console', monospace;
   --sans:        'Helvetica Neue', 'Helvetica', 'Arial', sans-serif;
 }
@@ -151,13 +151,13 @@ html, body {
 
 .subline {
   font-family: var(--mono);
-  font-size:   0.72vmin;
+  font-size:   0.82vmin;
   letter-spacing: 0.16em;
-  color: var(--text-dim);
+  color: var(--text-muted);
   text-transform: uppercase;
   margin-top: 7px;
   line-height: 1.6;
-  opacity: 0.7;
+  opacity: 0.85;
 }
 
 /* ─── Vision bottom affordance ─── */
