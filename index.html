@@ -9,8 +9,11 @@
 /* ============================================================
    ZYNTHR OPERATING ENVIRONMENT  ·  Pentagon Briefing
    Corry Station · July 28 2026
-   Deck-match visual language — starfield, arc-ring wheel,
-   luminous hub, near-white labels, subtle teal accent
+
+   GEOMETRY : pie-slice fins (filled annular sectors) — FORTE
+   PALETTE  : deck-match — pure-black starfield, luminous hub,
+              near-white labels, calm unified teal accent
+              NO per-wedge neon colors, NO gradient rainbow fills
    ============================================================ */
 :root {
   --bg:          #000008;
@@ -62,37 +65,42 @@ html, body {
   overflow: visible;
 }
 
-/* ─── SVG Element Styles ─── */
+/* ─── Wedge SVG styles ─── */
 .wedge { cursor: pointer; }
 
-.wedge-bg {
-  fill: rgba(13,148,136,0.025);
-  transition: fill 0.28s ease;
+/* Filled fin — calm unified teal-gray, not per-wedge neon */
+.wedge-fill {
+  fill: url(#wgFin);
+  fill-opacity: 0.65;
+  stroke: rgba(20,184,166,0.28);
+  stroke-width: 0.8;
+  transition: fill-opacity 0.28s ease, filter 0.28s ease, stroke 0.28s ease;
 }
-.wedge:hover .wedge-bg { fill: rgba(13,148,136,0.08); }
 
-.wedge-arc {
+.wedge:hover .wedge-fill {
+  fill-opacity: 1;
+  stroke: rgba(20,184,166,0.70);
+  filter: drop-shadow(0 0 10px rgba(20,184,166,0.28));
+}
+
+/* Outer arc rim highlight — extra teal edge per fin */
+.wedge-rim {
   fill: none;
-  stroke: rgba(20,184,166,0.32);
-  stroke-width: 2;
+  stroke: rgba(20,184,166,0.22);
+  stroke-width: 1.6;
   stroke-linecap: butt;
-  transition: stroke 0.28s ease, stroke-width 0.28s ease, filter 0.28s ease;
-}
-.wedge:hover .wedge-arc {
-  stroke: rgba(20,184,166,0.9);
-  stroke-width: 2.8;
-  filter: drop-shadow(0 0 7px rgba(20,184,166,0.55));
-}
-
-.wedge-radial {
-  fill: none;
-  stroke: rgba(170,210,228,0.08);
-  stroke-width: 0.7;
   pointer-events: none;
+  transition: stroke 0.28s ease, filter 0.28s ease;
 }
 
+.wedge:hover .wedge-rim {
+  stroke: rgba(20,184,166,0.80);
+  filter: drop-shadow(0 0 6px rgba(20,184,166,0.45));
+}
+
+/* Word label — near-white, large, spaced caps */
 .wedge-label {
-  fill: rgba(205,232,248,0.82);
+  fill: rgba(208,232,244,0.84);
   font-family: var(--mono);
   font-size: 22px;
   letter-spacing: 3px;
@@ -103,8 +111,9 @@ html, body {
 }
 .wedge:hover .wedge-label { fill: #ffffff; }
 
+/* Number label 01–06 */
 .wedge-num {
-  fill: rgba(150,200,220,0.38);
+  fill: rgba(150,200,220,0.32);
   font-family: var(--mono);
   font-size: 9.5px;
   letter-spacing: 2px;
@@ -113,10 +122,11 @@ html, body {
   pointer-events: none;
   transition: fill 0.24s ease;
 }
-.wedge:hover .wedge-num { fill: rgba(20,184,166,0.75); }
+.wedge:hover .wedge-num { fill: rgba(20,184,166,0.70); }
 
+/* Key shortcut hint */
 .wedge-key {
-  fill: rgba(20,184,166,0.40);
+  fill: rgba(20,184,166,0.35);
   font-family: var(--mono);
   font-size: 7.5px;
   letter-spacing: 0.5px;
@@ -125,7 +135,7 @@ html, body {
   pointer-events: none;
   transition: fill 0.24s ease;
 }
-.wedge:hover .wedge-key { fill: rgba(20,184,166,0.9); }
+.wedge:hover .wedge-key { fill: rgba(20,184,166,0.90); }
 
 /* ─── Hub overlay ─── */
 .hub-overlay {
@@ -285,18 +295,18 @@ body.entering .footer-tag {
 @keyframes fadeIn { to { opacity: 0.45; } }
 
 /* ─── Hub SVG animations ─── */
-@keyframes hubDash   { from { stroke-dashoffset: 0; } to { stroke-dashoffset: -88; } }
-@keyframes hubPulse  { 0%,100% { stroke-opacity: 0.18; } 50% { stroke-opacity: 0.58; } }
-@keyframes outerDrift{ 0%,100% { stroke-opacity: 0.08; } 50% { stroke-opacity: 0.22; } }
+@keyframes hubDash  { from { stroke-dashoffset: 0; } to { stroke-dashoffset: -88; } }
+@keyframes hubPulse { 0%,100%{stroke-opacity:0.18;} 50%{stroke-opacity:0.58;} }
+@keyframes outerDrift { 0%,100%{stroke-opacity:0.08;} 50%{stroke-opacity:0.22;} }
 
 @media (prefers-reduced-motion: reduce) {
-  .wedge-bg, .wedge-arc, .wedge-label, .wedge-num { transition: none; }
+  .wedge-fill, .wedge-rim, .wedge-label, .wedge-num, .wedge-key { transition: none; }
 }
 </style>
 </head>
 <body class="pre-enter">
 
-<!-- Cinematic splash (unchanged) -->
+<!-- Cinematic splash — unchanged -->
 <div id="splash">
   <img src="splash.jpg" alt="">
   <div class="splash-vignette"></div>
@@ -329,8 +339,8 @@ body.entering .footer-tag {
 /* ─── Starfield ─── */
 (function () {
   const canvas = document.getElementById('stars');
-  const ctx = canvas.getContext('2d');
-  let stars = [];
+  const ctx    = canvas.getContext('2d');
+  let stars    = [];
 
   function resize() {
     canvas.width  = window.innerWidth;
@@ -361,45 +371,45 @@ body.entering .footer-tag {
 /* ─── Live UTC clock ─── */
 function updateClock() {
   const now = new Date();
-  const p = n => String(n).padStart(2, '0');
+  const p   = n => String(n).padStart(2, '0');
   document.getElementById('sysTime').textContent =
     `${now.getUTCFullYear()}.${p(now.getUTCMonth()+1)}.${p(now.getUTCDate())} · ${p(now.getUTCHours())}:${p(now.getUTCMinutes())} UTC`;
 }
 updateClock();
 setInterval(updateClock, 30000);
 
-/* ─── Wheel Configuration — 6 wedges ─── */
+/* ─── Wheel config — 6 wedges ─── */
 const WEDGES = [
-  { label: 'COMMAND',       num: '01', angle:   0, key: '1', url: 'https://zynthr-todays-brief.vercel.app' },
-  { label: 'INSTALLATIONS', num: '02', angle:  60, key: '2', url: 'https://installation-attention-view.vercel.app' },
-  { label: 'OPERATIONS',    num: '03', angle: 120, key: '3', url: 'https://baas-maintenance.vercel.app/t/navy/wo/9c9259b4-9e60-4225-8642-fdc08353c7ab' },
-  { label: 'DEPLOYMENT',    num: '04', angle: 180, key: '4', url: 'deployment.html' },
+  { label: 'COMMAND',       num: '01', angle:   0, key: '1',  url: 'https://zynthr-todays-brief.vercel.app' },
+  { label: 'INSTALLATIONS', num: '02', angle:  60, key: '2',  url: 'https://installation-attention-view.vercel.app' },
+  { label: 'OPERATIONS',    num: '03', angle: 120, key: '3',  url: 'https://baas-maintenance.vercel.app/t/navy/wo/9c9259b4-9e60-4225-8642-fdc08353c7ab' },
+  { label: 'DEPLOYMENT',    num: '04', angle: 180, key: '4',  url: 'deployment.html' },
   { label: 'GOVERNANCE',    num: '05', angle: 240, key: null, url: 'governance.html' },
   { label: 'INTEGRATIONS',  num: '06', angle: 300, key: null, url: 'integrations.html' },
 ];
 
-/* ─── Geometry ─── */
-const R1        = 158;   // hub outer radius (inner edge of wedge ring)
-const R2        = 438;   // wedge outer radius
-const GAP_DEG   = 2.8;   // degrees gap on each side of wedge boundary
-const HALF_SPAN = 30 - GAP_DEG; // = 27.2° half-angle of each wedge
-const LABEL_R   = 295;   // word label radial position
-const NUM_R     = 395;   // number label radial position
-const KEY_R     = 422;   // keyboard key label position
-const OUTER_R   = 465;   // decorative outer ring radius
+/* ─── Geometry constants ─── */
+const R1        = 158;    // inner radius — hub edge
+const R2        = 438;    // outer radius — fin tip
+const GAP_DEG   = 2.8;   // gap on each side of boundary
+const HALF_SPAN = 30 - GAP_DEG;  // 27.2° each way → 54.4° total wedge arc
+const LABEL_R   = 298;   // word label radial position
+const NUM_R     = 400;   // number label
+const KEY_R     = 425;   // key shortcut hint
+const OUTER_R   = 465;   // decorative outer ring
 
 const ns  = 'http://www.w3.org/2000/svg';
 const svg = document.getElementById('wheel');
 
 const toRad = d => d * Math.PI / 180;
 
-// Polar → Cartesian: 0° = top, clockwise
+// Polar → Cartesian (0° = top, clockwise)
 function pt(r, deg) {
   const rad = toRad(deg - 90);
   return { x: r * Math.cos(rad), y: r * Math.sin(rad) };
 }
 
-// Annular sector path
+// Full annular-sector path (the "fin" shape)
 function sector(r1, r2, a0, a1) {
   const s1 = pt(r1, a0), e1 = pt(r1, a1);
   const s2 = pt(r2, a0), e2 = pt(r2, a1);
@@ -414,8 +424,8 @@ function sector(r1, r2, a0, a1) {
   ].join(' ');
 }
 
-// Outer arc only (for visible ring edge per wedge)
-function arcPath(r, a0, a1) {
+// Outer arc only (rim highlight per fin)
+function outerArc(r, a0, a1) {
   const s = pt(r, a0), e = pt(r, a1);
   const big = (a1 - a0) > 180 ? 1 : 0;
   return `M${s.x.toFixed(3)} ${s.y.toFixed(3)} A${r} ${r} 0 ${big} 1 ${e.x.toFixed(3)} ${e.y.toFixed(3)}`;
@@ -428,66 +438,80 @@ function el(tag, attrs = {}) {
 }
 
 /* ─── Build SVG ─── */
-
-// Defs
 const defs = el('defs');
 
-// Hub glow gradient (teal radial glow from center)
-const hubGrad = el('radialGradient', {
-  id: 'hubGlow', gradientUnits: 'userSpaceOnUse', cx: 0, cy: 0, r: 220
+// Fin gradient — CALM UNIFIED TEAL (same for all wedges, matches deck palette)
+// Dark at hub → soft teal glow at outer rim — NO per-wedge colors
+const wgFin = el('radialGradient', {
+  id: 'wgFin', gradientUnits: 'userSpaceOnUse', cx: 0, cy: 0, r: R2,
 });
 [
-  ['0%',  '#14b8a6', 0.50],
-  ['30%', '#0d9488', 0.14],
-  ['65%', '#020c10', 0.06],
-  ['100%','#000008', 0.00],
+  ['0%',   '#030a0e', 1.00],
+  ['30%',  '#051218', 1.00],
+  ['65%',  '#0a2830', 1.00],
+  ['85%',  '#0d3840', 1.00],
+  ['100%', '#0f4048', 1.00],
+].forEach(([off, col, op]) =>
+  wgFin.appendChild(el('stop', { offset: off, 'stop-color': col, 'stop-opacity': op }))
+);
+defs.appendChild(wgFin);
+
+// Hub glow (luminous particle-sphere effect)
+const hubGrad = el('radialGradient', {
+  id: 'hubGlow', gradientUnits: 'userSpaceOnUse', cx: 0, cy: 0, r: 240,
+});
+[
+  ['0%',   '#14b8a6', 0.55],
+  ['22%',  '#0d9488', 0.22],
+  ['50%',  '#041214', 0.10],
+  ['100%', '#000008', 0.00],
 ].forEach(([off, col, op]) =>
   hubGrad.appendChild(el('stop', { offset: off, 'stop-color': col, 'stop-opacity': op }))
 );
 defs.appendChild(hubGrad);
 
-// Hub fill (dark center)
+// Hub dark fill
 const hubFill = el('radialGradient', {
-  id: 'hubFill', gradientUnits: 'userSpaceOnUse', cx: 0, cy: 0, r: 158
+  id: 'hubFill', gradientUnits: 'userSpaceOnUse', cx: 0, cy: 0, r: 158,
 });
-[['0%','#0b1d24',1],['100%','#050a0e',1]].forEach(([off,col,op]) =>
-  hubFill.appendChild(el('stop', { offset:off, 'stop-color':col, 'stop-opacity':op }))
+[['0%','#0b1d24',1],['60%','#060e12',1],['100%','#030810',1]].forEach(([off, col, op]) =>
+  hubFill.appendChild(el('stop', { offset: off, 'stop-color': col, 'stop-opacity': op }))
 );
 defs.appendChild(hubFill);
 
 svg.appendChild(defs);
 
-// 1. Hub outer glow (behind everything)
-svg.appendChild(el('circle', { cx:0, cy:0, r:220, fill:'url(#hubGlow)' }));
+/* Layer 1 — Hub outer glow sphere (behind fins) */
+svg.appendChild(el('circle', { cx:0, cy:0, r:240, fill:'url(#hubGlow)' }));
 
-// 2. Wedge groups
+/* Layer 2 — Wedge fins */
 WEDGES.forEach(w => {
   const start = w.angle - HALF_SPAN;
   const end   = w.angle + HALF_SPAN;
   const lp    = pt(LABEL_R, w.angle);
-  const np    = pt(NUM_R, w.angle);
-  const kp    = pt(KEY_R, w.angle);
+  const np    = pt(NUM_R,   w.angle);
+  const kp    = pt(KEY_R,   w.angle);
 
   const g = el('g', { class: 'wedge' });
 
-  // Hover area (annular sector, near-transparent fill)
+  // Filled annular sector — the pie-slice fin
   g.appendChild(el('path', {
     d: sector(R1, R2, start, end),
-    class: 'wedge-bg',
+    class: 'wedge-fill',
   }));
 
-  // Outer arc (visible teal ring segment)
+  // Outer arc rim — teal highlight on leading edge of fin
   g.appendChild(el('path', {
-    d: arcPath(R2, start, end),
-    class: 'wedge-arc',
+    d: outerArc(R2 - 1, start, end),
+    class: 'wedge-rim',
   }));
 
-  // Word label — large spaced caps
+  // Word label
   const lblT = el('text', { x: lp.x.toFixed(2), y: lp.y.toFixed(2), class: 'wedge-label' });
   lblT.textContent = w.label;
   g.appendChild(lblT);
 
-  // Number label
+  // Number
   const numT = el('text', { x: np.x.toFixed(2), y: np.y.toFixed(2), class: 'wedge-num' });
   numT.textContent = w.num;
   g.appendChild(numT);
@@ -503,50 +527,38 @@ WEDGES.forEach(w => {
   svg.appendChild(g);
 });
 
-// 3. Radial divider lines (at each 60° wedge boundary, drawn on top of wedge fills)
-for (let i = 0; i < 6; i++) {
-  const deg = i * 60 - 30;  // boundaries: -30, 30, 90, 150, 210, 270
-  const p1 = pt(R1 + 3, deg);
-  const p2 = pt(R2, deg);
-  svg.appendChild(el('line', {
-    x1: p1.x.toFixed(3), y1: p1.y.toFixed(3),
-    x2: p2.x.toFixed(3), y2: p2.y.toFixed(3),
-    class: 'wedge-radial',
-  }));
-}
-
-// 4. Outer decorative ring
-svg.appendChild(el('circle', { cx:0, cy:0, r: OUTER_R,
+/* Layer 3 — Outer decorative ring */
+svg.appendChild(el('circle', { cx:0, cy:0, r:OUTER_R,
   fill: 'none',
   stroke: 'rgba(20,184,166,0.10)',
   'stroke-width': '0.6',
-  style: 'animation: outerDrift 7s ease-in-out infinite;'
+  style: 'animation: outerDrift 7s ease-in-out infinite;',
 }));
 
-// 5. Hub fill circle (dark, covers inner wedge edges cleanly)
+/* Layer 4 — Hub dark fill (covers fin inner edges cleanly) */
 svg.appendChild(el('circle', { cx:0, cy:0, r:157, fill:'url(#hubFill)' }));
 
-// 6. Hub structural ring (outer edge of hub)
+/* Layer 5 — Hub structural ring */
 svg.appendChild(el('circle', { cx:0, cy:0, r:157,
   fill: 'none',
-  stroke: 'rgba(20,184,166,0.28)',
-  'stroke-width': '1.2',
+  stroke: 'rgba(20,184,166,0.32)',
+  'stroke-width': '1.4',
 }));
 
-// 7. Hub rotating dashed ring
+/* Layer 6 — Hub rotating dashed ring */
 svg.appendChild(el('circle', { cx:0, cy:0, r:142,
   fill: 'none',
-  stroke: 'rgba(150,200,218,0.14)',
+  stroke: 'rgba(150,200,218,0.15)',
   'stroke-width': '1',
   'stroke-dasharray': '3.5 8.5',
   style: 'animation: hubDash 65s linear infinite;',
 }));
 
-// 8. Hub inner pulse ring (breathes slowly)
+/* Layer 7 — Hub breathing pulse ring */
 svg.appendChild(el('circle', { cx:0, cy:0, r:150,
   fill: 'none',
-  stroke: 'rgba(20,184,166,0.45)',
-  'stroke-width': '0.8',
+  stroke: 'rgba(20,184,166,0.48)',
+  'stroke-width': '0.9',
   style: 'animation: hubPulse 4.8s ease-in-out infinite;',
 }));
 
@@ -571,7 +583,7 @@ document.addEventListener('keydown', e => {
       enterSystem();
       return;
     }
-    // Number keys fall through so presenter can jump straight to a section
+    // Number keys fall through — presenter can jump directly
   }
   switch (e.key) {
     case '1': window.location = WEDGES[0].url; break;  // COMMAND
@@ -580,7 +592,7 @@ document.addEventListener('keydown', e => {
     case '4': window.location = WEDGES[3].url; break;  // DEPLOYMENT
     case '5':
     case 'v':
-    case 'V': window.location = 'vision.html';  break;  // VISION
+    case 'V': window.location = 'vision.html'; break;  // VISION
   }
 });
 </script>
