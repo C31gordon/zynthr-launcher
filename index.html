@@ -12,15 +12,15 @@
    R13 Visual Language — near-black, teal accent, mono labels
    ============================================================ */
 :root {
-  --bg:          #050508;
-  --surface:     #0d0d14;   /* lighter fill so wedges survive projection */
+  --bg:          #06060a;
+  --surface:     #10101a;   /* clearly distinct wedge fill */
   --teal:        #0d9488;
   --teal-bright: #14b8a6;
-  --teal-dim:    rgba(13, 148, 136, 0.12);
-  --teal-border: rgba(13, 148, 136, 0.55);  /* visible on projectors */
-  --text:        #c8dce8;
-  --text-dim:    #90b0c2;   /* projector-safe label brightness */
-  --text-muted:  #3a5262;  /* subtext */
+  --teal-dim:    rgba(13, 148, 136, 0.15);
+  --teal-border: rgba(20, 184, 166, 0.6);  /* projector-visible teal stroke */
+  --text:        #d0e4ee;
+  --text-dim:    #c0d4de;   /* labels — match R13 text-primary level */
+  --text-muted:  #445868;  /* secondary subtext */
   --mono:        'Courier New', 'Courier', 'Lucida Console', monospace;
   --sans:        'Helvetica Neue', 'Helvetica', 'Arial', sans-serif;
 }
@@ -67,7 +67,7 @@ html, body {
 .wedge-bg {
   fill: var(--surface);
   stroke: var(--teal-border);
-  stroke-width: 0.9;
+  stroke-width: 1.4;
   transition: fill 0.22s ease, stroke-width 0.22s ease;
 }
 
@@ -288,8 +288,8 @@ WEDGES.forEach(w => {
   const txt = el('text', {
     x: lp.x.toFixed(2), y: lp.y.toFixed(2),
     class: 'wedge-label',
-    'font-size': '13.5',
-    'letter-spacing': '2.8',
+    'font-size': '15',
+    'letter-spacing': '3',
   });
   txt.textContent = w.label;
   g.appendChild(txt);
