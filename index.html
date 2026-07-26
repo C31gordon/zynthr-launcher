@@ -382,7 +382,12 @@ setInterval(updateClock, 30000);
 const WEDGES = [
   { label: 'COMMAND',       num: '01', angle:   0, key: '1',  url: 'https://zynthr-todays-brief.vercel.app' },
   { label: 'INSTALLATIONS', num: '02', angle:  60, key: '2',  url: 'https://installation-attention-view.vercel.app' },
-  { label: 'OPERATIONS',    num: '03', angle: 120, key: '3',  url: 'https://baas-maintenance.vercel.app/t/navy/wo/9c9259b4-9e60-4225-8642-fdc08353c7ab' },
+  // OPERATIONS: lands on the Navy portfolio (not a specific WO deep-link).
+  // Deep-link doctrine: launcher wiring only — no FORTE code edit needed.
+  // The NTTC-BI-2026-0019 WO is still reachable via Portfolio → NTTC Corry → Bldg 3460.
+  // Rationale: landing on a specific WO caused "permission denied" when navigating
+  // from portfolio back to any other WO/inspection (Jul 26, 2026 Pentagon bug fix).
+  { label: 'OPERATIONS',    num: '03', angle: 120, key: '3',  url: 'https://baas-maintenance.vercel.app/t/navy/portfolio' },
   { label: 'DEPLOYMENT',    num: '04', angle: 180, key: '4',  url: 'deployment.html' },
   { label: 'GOVERNANCE',    num: '05', angle: 240, key: null, url: 'governance.html' },
   { label: 'INTEGRATIONS',  num: '06', angle: 300, key: null, url: 'integrations.html' },
